@@ -2,8 +2,6 @@
 
 // Load array of notes
 
-console.log('Hello Noteful!');
-
 const express = require('express');
 
 const data = require('./db/notes');
