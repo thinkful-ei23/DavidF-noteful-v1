@@ -13,7 +13,11 @@ const app = express();
 app.use(express.static('public'));
 
 app.get('/api/notes', (req, res) => {
-  res.json(data);
+  if (req.query.searchTerm){
+    return res.json(data.filter(element => element.title.includes(req.query.searchTerm)));
+  } else {
+    return res.json(data);
+  }
 });
 
 app.get('/api/notes/:id', (req, res) => {
