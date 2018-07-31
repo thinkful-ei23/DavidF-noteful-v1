@@ -1,5 +1,5 @@
+'use strict';
 
 
 
-
-module.exports.PORT = 8080
+module.exports.PORT = 8080;
