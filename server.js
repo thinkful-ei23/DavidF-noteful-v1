@@ -4,9 +4,13 @@
 
 const express = require('express');
 
+const morgan = require('morgan');
+
 const data = require('./db/notes');
 
 const app = express();
+
+app.use(morgan('dev'));
 
 app.use(express.static('public'));
 
