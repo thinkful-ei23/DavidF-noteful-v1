@@ -9,37 +9,26 @@ const notes = simDB.initialize(data);
 router.use(express.json());
 
 
-router.get('/notes', (req, res) => {
-  if (req.query.searchTerm){
-    return res.json(data.filter(element => element.title.includes(req.query.searchTerm)));
-  } else {
-    return res.json(data);
-  }
-});
-
-router.get('/notes', (req, res, next) => {
-  const { searchTerm } = req.query;
+router.get('/', (req, res, next) => {
+  const {searchTerm} = req.query;
 
   notes.filter(searchTerm, (err, list) => {
-    if (err) {
-      return next(err); 
-    }
-    res.json(list); 
+    err ? next(err) : res.json(list);
   });
 });
 
 
-router.get('/notes/:id', (req, res, next) => {
+router.get('/:id', (req, res, next) => {
   const id = req.params.id;
   notes.find(id, (err, item) => {
     if (err) {
       return next(err);
     }
-    res.json(item);
+    item ? res.json(item) : next();
   });
-});
+});  
 
-router.put('/notes/:id', (req, res, next) => {
+router.put('/:id', (req, res, next) => {
   const id = req.params.id;
 
   /***** Never trust users - validate input *****/
@@ -62,22 +51,15 @@ router.put('/notes/:id', (req, res, next) => {
     if (err) {
       return next(err);
     }
-    if (item) {
-      res.json(item);
-    } else {
-      next();
-    }
+    item ? res.json(item) : next();
   });
 });
 
-router.get('/throw', (req, res, next) => {
-  throw new Error('Boom!!');
-});
+
 
 
 // Post (insert) an item
-router.post('/notes', (req, res, next) => {
-  console.log('Oh hellloooo!');
+router.post('/', (req, res, next) => {
   const { title, content } = req.body;
 
   const newItem = { title, content };
@@ -92,12 +74,14 @@ router.post('/notes', (req, res, next) => {
     if (err) {
       return next(err);
     }
-    if (item) {
-      res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item);
-    } else {
-      next();
-    }
+    item ? res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item) : next();
   });
 });
 
+router.delete('/:id', (req, res, next) => {
+  const id = req.params.id;
+  notes.delete(id, err => {
+    err ? next(err) : res.sendStatus(204);
+  });
+});
 module.exports = router;

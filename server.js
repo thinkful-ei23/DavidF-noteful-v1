@@ -3,19 +3,16 @@
 // Load array of notes
 
 const express = require('express');
-const { PORT } = require('./config');
 const morgan = require('morgan');
-
-const router = require('./router/notes.router');
-
+const { PORT } = require('./config');
+const notesRouter = require('./router/notes.router');
 const app = express();
 
 app.use(morgan('dev'));
-
 app.use(express.static('public'));
-app.use('/api', router);
+app.use('/api/notes', notesRouter);
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   var err = new Error('Not Found');
   err.status = 404;
   res.status(404).json({ message: 'Not Found' });
