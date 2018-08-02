@@ -8,26 +8,28 @@ const notes = simDB.initialize(data);
 
 router.use(express.json());
 
-
+// Get the list filtered by searchTerm
 router.get('/', (req, res, next) => {
   const {searchTerm} = req.query;
 
-  notes.filter(searchTerm, (err, list) => {
-    err ? next(err) : res.json(list);
-  });
+  notes.filter(searchTerm)
+    .then(list => {
+      list ? res.json(list) : next();
+    })
+    .catch(err => next(err));
 });
 
-
+// Get a specific item
 router.get('/:id', (req, res, next) => {
   const id = req.params.id;
-  notes.find(id, (err, item) => {
-    if (err) {
-      return next(err);
-    }
-    item ? res.json(item) : next();
-  });
-});  
+  notes.find(id)
+    .then(item => {
+      item ? res.json(item) : next();
+    })
+    .catch(err => next(err));
+}); 
 
+// Put (update) an item
 router.put('/:id', (req, res, next) => {
   const id = req.params.id;
 
@@ -47,16 +49,12 @@ router.put('/:id', (req, res, next) => {
     return next(err);
   }
 
-  notes.update(id, updateObj, (err, item) => {
-    if (err) {
-      return next(err);
-    }
-    item ? res.json(item) : next();
-  });
+  notes.update(id, updateObj)
+    .then(item =>{
+      item ? res.json(item) : next();
+    })
+    .catch(err => next(err));
 });
-
-
-
 
 // Post (insert) an item
 router.post('/', (req, res, next) => {
@@ -70,18 +68,21 @@ router.post('/', (req, res, next) => {
     return next(err);
   }
 
-  notes.create(newItem, (err, item) => {
-    if (err) {
-      return next(err);
-    }
-    item ? res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item) : next();
-  });
+  notes.create(newItem) 
+    .then(item => {
+      item ? res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item) : next();
+    })
+    .catch(err => next(err));
 });
 
+//Delete (remove) an item
 router.delete('/:id', (req, res, next) => {
   const id = req.params.id;
-  notes.delete(id, err => {
-    err ? next(err) : res.sendStatus(204);
-  });
+  notes.delete(id)
+    .then(id => {
+      id ? res.sendStatus(204) : next();})
+    .catch(err => next(err));
 });
+
+
 module.exports = router;
