@@ -1,10 +1,8 @@
 /* global $ store api */
 'use strict';
 
-const noteful = (function () {
-
+const noteful = (function() {
   function render() {
-
     const notesList = generateNotesList(store.notes, store.currentNote);
     $('.js-notes-list').html(notesList);
 
@@ -17,11 +15,15 @@ const noteful = (function () {
    * GENERATE HTML FUNCTIONS
    */
   function generateNotesList(list, currentNote) {
-    const listItems = list.map(item => `
-    <li data-id="${item.id}" class="js-note-element ${currentNote.id === item.id ? 'active' : ''}">
+    const listItems = list.map(
+      item => `
+    <li data-id="${item.id}" class="js-note-element ${
+    currentNote.id === item.id ? 'active' : ''
+  }">
       <a href="#" class="name js-note-show-link">${item.title}</a>
       <button class="removeBtn js-note-delete-button">X</button>
-    </li>`);
+    </li>`
+    );
     return listItems.join('');
   }
 
@@ -29,7 +31,9 @@ const noteful = (function () {
    * HELPERS
    */
   function getNoteIdFromElement(item) {
-    const id = $(item).closest('.js-note-element').data('id');
+    const id = $(item)
+      .closest('.js-note-element')
+      .data('id');
     return id;
   }
 
@@ -42,12 +46,10 @@ const noteful = (function () {
 
       const noteId = getNoteIdFromElement(event.currentTarget);
 
-      api.details(noteId)
-        .then(detailsResponse => {
-          store.currentNote = detailsResponse;
-          render();
-        });
-
+      api.details(noteId).then(detailsResponse => {
+        store.currentNote = detailsResponse;
+        render();
+      });
     });
   }
 
@@ -58,17 +60,15 @@ const noteful = (function () {
       const searchTerm = $('.js-note-search-entry').val();
       store.currentSearchTerm = searchTerm ? { searchTerm } : {};
 
-      api.search(store.currentSearchTerm)
-        .then(searchResponse => {
-          store.notes = searchResponse;
-          render();
-        });
-
+      api.search(store.currentSearchTerm).then(searchResponse => {
+        store.notes = searchResponse;
+        render();
+      });
     });
   }
 
   function handleNoteFormSubmit() {
-    $('.js-note-edit-form').on('submit', function (event) {
+    $('.js-note-edit-form').on('submit', function(event) {
       event.preventDefault();
 
       const editForm = $(event.currentTarget);
@@ -80,32 +80,28 @@ const noteful = (function () {
       };
 
       if (noteObj.id) {
-
-        api.update(store.currentNote.id, noteObj)
+        api
+          .update(store.currentNote.id, noteObj)
           .then(updateResponse => {
             store.currentNote = updateResponse;
-
-            api.search(store.currentSearchTerm)
-              .then(searchResponse => {
-                store.notes = searchResponse;
-                render();
-              });
+            return api.search(store.currentSearchTerm);
+          })
+          .then(searchResponse => {
+            store.notes = searchResponse;
+            render();
           });
-
       } else {
-
-        api.create(noteObj)
+        api
+          .create(noteObj)
           .then(createResponse => {
             store.currentNote = createResponse;
-
-            api.search(store.currentSearchTerm)
-              .then(searchResponse => {
-                store.notes = searchResponse;
-                render();
-              });
+            return api.search(store.currentSearchTerm);
+          })
+          .then(searchResponse => {
+            store.notes = searchResponse;
+            render();
           });
       }
-
     });
   }
 
@@ -115,7 +111,6 @@ const noteful = (function () {
 
       store.currentNote = {};
       render();
-
     });
   }
 
@@ -125,18 +120,15 @@ const noteful = (function () {
 
       const noteId = getNoteIdFromElement(event.currentTarget);
 
-      api.remove(noteId)
-        .then( () => {
-
-          api.search(store.currentSearchTerm)
-            .then(searchResponse => {
-              store.notes = searchResponse;
-              if (noteId === store.currentNote.id) {
-                store.currentNote = {};
-              }
-              render();
-            });
+      api.remove(noteId).then(() => {
+        api.search(store.currentSearchTerm).then(searchResponse => {
+          store.notes = searchResponse;
+          if (noteId === store.currentNote.id) {
+            store.currentNote = {};
+          }
+          render();
         });
+      });
     });
   }
 
@@ -152,7 +144,6 @@ const noteful = (function () {
   // This object contains the only exposed methods from this module:
   return {
     render: render,
-    bindEventListeners: bindEventListeners,
+    bindEventListeners: bindEventListeners
   };
-
-}());
+})();

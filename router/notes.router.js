@@ -3,16 +3,17 @@
 const express = require('express');
 const router = express.Router();
 const data = require('../db/notes');
-const simDB = require('../db/simDB');  // <<== add this
+const simDB = require('../db/simDB'); // <<== add this
 const notes = simDB.initialize(data);
 
 router.use(express.json());
 
 // Get the list filtered by searchTerm
 router.get('/', (req, res, next) => {
-  const {searchTerm} = req.query;
+  const { searchTerm } = req.query;
 
-  notes.filter(searchTerm)
+  notes
+    .filter(searchTerm)
     .then(list => {
       list ? res.json(list) : next();
     })
@@ -22,12 +23,13 @@ router.get('/', (req, res, next) => {
 // Get a specific item
 router.get('/:id', (req, res, next) => {
   const id = req.params.id;
-  notes.find(id)
+  notes
+    .find(id)
     .then(item => {
       item ? res.json(item) : next();
     })
     .catch(err => next(err));
-}); 
+});
 
 // Put (update) an item
 router.put('/:id', (req, res, next) => {
@@ -49,8 +51,9 @@ router.put('/:id', (req, res, next) => {
     return next(err);
   }
 
-  notes.update(id, updateObj)
-    .then(item =>{
+  notes
+    .update(id, updateObj)
+    .then(item => {
       item ? res.json(item) : next();
     })
     .catch(err => next(err));
@@ -68,9 +71,15 @@ router.post('/', (req, res, next) => {
     return next(err);
   }
 
-  notes.create(newItem) 
+  notes
+    .create(newItem)
     .then(item => {
-      item ? res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item) : next();
+      item
+        ? res
+          .location(`http://${req.headers.host}/notes/${item.id}`)
+          .status(201)
+          .json(item)
+        : next();
     })
     .catch(err => next(err));
 });
@@ -78,11 +87,12 @@ router.post('/', (req, res, next) => {
 //Delete (remove) an item
 router.delete('/:id', (req, res, next) => {
   const id = req.params.id;
-  notes.delete(id)
+  notes
+    .delete(id)
     .then(id => {
-      id ? res.sendStatus(204) : next();})
+      id ? res.sendStatus(204) : next();
+    })
     .catch(err => next(err));
 });
-
 
 module.exports = router;
