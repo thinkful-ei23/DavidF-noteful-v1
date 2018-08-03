@@ -48,7 +48,7 @@ describe('Get /api/notes', function() {
       .request(app)
       .get('/api/notes')
       .then(res => {
-        expect(res.body).to.exist;
+        // expect(res.body).to.exist;
         expect(res.body).to.be.an('array');
         // expect(res).
       });
